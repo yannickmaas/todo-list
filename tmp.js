@@ -187,7 +187,7 @@ function Sidebar() {
       <Box sx={{ overflow: 'auto' }}>
         <List>
           <ListItem button component={Link} to="/">
-            <ListItemIcon><Info /></ListItemIcon>
+            <ListItemIcon><Home /></ListItemIcon>
             <ListItemText primary="Home" />
           </ListItem>
           <ListItem button component={Link} to="/placeholder">
