@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import {
-  Container, TextField, Button, List, ListItem, ListItemText, IconButton, Typography,
+  Container, TextField, Button, List, ListItem, ListItemText, IconButton, Checkbox, Typography,
   Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
+
 // Set up initial global state
 const initialGlobalState = {
   tasks: [],
@@ -47,7 +48,7 @@ class Global extends React.Component {
 // Create a hook to use the GlobalState
 const useGlobalState = () => React.useContext(GlobalState);
 
-// Main ToDo Function
+// Create a component to render and modify the to-do list
 function TodoList() {
   //Define states
   const { tasks } = useGlobalState();
@@ -58,9 +59,8 @@ function TodoList() {
   //Add task function
   function addTask() {
     if (newTask) {
-      //Sets the new task state in the const
       GlobalState.set({
-        tasks: [...tasks, newTask],
+        tasks: [...tasks, { text: newTask, completed: false }],
       });
       setNewTask('');
     }
@@ -69,13 +69,13 @@ function TodoList() {
   function openEditDialog(index) {
     //Gets triggered and gets the data from the task in the textfield
     setEditIndex(index);
-    setEditTask(tasks[index]);
+    setEditTask(tasks[index].text);
   }
 
   function handleEditTask() {
     if (editTask) {
       //For each task, the function checks if the current index i is equal to editIndex, if so it changes the task data
-      const updatedTasks = tasks.map((task, i) => (i === editIndex ? editTask : task));
+      const updatedTasks = tasks.map((task, i) => (i === editIndex ? { ...task, text: editTask } : task));
       GlobalState.set({ tasks: updatedTasks });
       setEditIndex(null);
       setEditTask('');
@@ -88,6 +88,12 @@ function TodoList() {
     GlobalState.set({ tasks: updatedTasks });
   }
 
+  function toggleTaskCompletion(index) {
+    //Checks the task if found in the loop
+    const updatedTasks = tasks.map((task, i) => (i === index ? { ...task, completed: !task.completed } : task));
+    GlobalState.set({ tasks: updatedTasks });
+  }
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Todo List</Typography>
@@ -95,7 +101,6 @@ function TodoList() {
         label="New Task"
         variant="outlined"
         value={newTask}
-        //Stores the target value in the state of the new task
         onChange={(e) => setNewTask(e.target.value)}
         fullWidth
         margin="normal"
@@ -107,7 +112,7 @@ function TodoList() {
         {tasks.map((task, index) => (
           <ListItem key={index} secondaryAction={
             <>
-            <IconButton edge="end" onClick={() => openEditDialog(index)}>
+              <IconButton edge="end" onClick={() => openEditDialog(index)}>
                 <Edit />
               </IconButton>
               <IconButton edge="end" onClick={() => deleteTask(index)}>
@@ -115,7 +120,15 @@ function TodoList() {
               </IconButton>
             </>
           }>
-            <ListItemText primary={task} />
+            <Checkbox
+              edge="start"
+              checked={task.completed}
+              onChange={() => toggleTaskCompletion(index)}
+            />
+            <ListItemText
+              primary={task.text}
+              style={{ textDecoration: task.completed ? 'line-through' : 'none' }}
+            />
           </ListItem>
         ))}
       </List>
