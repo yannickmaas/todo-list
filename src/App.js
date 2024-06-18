@@ -173,35 +173,48 @@ function PlaceholderPage() {
 
 // Sidebar navigation
 function Sidebar() {
+  const drawerWidth = 240;
   return (
-    <Drawer variant="permanent">
-      <MUIList>
-        <MUIListItem button component={Link} to="/">
-          <ListItemIcon><Home /></ListItemIcon>
-          <MUIListItemText primary="Home" />
-        </MUIListItem>
-        <MUIListItem button component={Link} to="/placeholder">
-          <ListItemIcon><Info /></ListItemIcon>
-          <MUIListItemText primary="Placeholder" />
-        </MUIListItem>
-        <MUIListItem button component={Link} to="/todo-list">
-          <ListItemIcon><ListIcon /></ListItemIcon>
-          <MUIListItemText primary="Todo List" />
-        </MUIListItem>
-      </MUIList>
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: drawerWidth,
+        flexShrink: 0,
+        [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+      }}
+    >
+      <Toolbar />
+      <Box sx={{ overflow: 'auto' }}>
+        <MUIList>
+          <MUIListItem button component={Link} to="/">
+            <ListItemIcon><Home /></ListItemIcon>
+            <MUIListItemText primary="Home" />
+          </MUIListItem>
+          <MUIListItem button component={Link} to="/placeholder">
+            <ListItemIcon><Info /></ListItemIcon>
+            <MUIListItemText primary="Placeholder" />
+          </MUIListItem>
+          <MUIListItem button component={Link} to="/todo-list">
+            <ListItemIcon><ListIcon /></ListItemIcon>
+            <MUIListItemText primary="Todo List" />
+          </MUIListItem>
+        </MUIList>
+      </Box>
     </Drawer>
   );
 }
 
 // Main page
 function MainPage() {
+  const drawerWidth = 240;
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <Sidebar />
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3 }}
+        //With flexgrow the box adjusts itself and flows with the drawer width
+        sx={{ flexGrow: 1, p: 3, pl: `${drawerWidth}px`, pr: `${drawerWidth}px` }}
       >
         <Toolbar />
         <Routes>
