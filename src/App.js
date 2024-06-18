@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
-  Container, TextField, Button, List, ListItem, ListItemText, Typography,
+  Container, TextField, Button, List, ListItem, ListItemText, IconButton, Typography,
 } from '@mui/material';
+import { Delete } from '@mui/icons-material';
 // Set up initial global state
 const initialGlobalState = {
   tasks: [],
@@ -62,6 +63,12 @@ function TodoList() {
     }
   }
 
+  function deleteTask(index) {
+    //Updates the globalstate to filter the deleted tasks
+    const deleteTasks = tasks.filter((_, i) => i !== index);
+    GlobalState.set({ tasks: deleteTasks });
+  }
+
   return (
     <Container>
       <Typography variant="h4" gutterBottom>Todo List</Typography>
@@ -79,8 +86,13 @@ function TodoList() {
       </Button>
       <List>
         {tasks.map((task, index) => (
-          //Loops trough the tasks
-          <ListItem key={index}>
+          <ListItem key={index} secondaryAction={
+            <>
+              <IconButton edge="end" onClick={() => deleteTask(index)}>
+                <Delete />
+              </IconButton>
+            </>
+          }>
             <ListItemText primary={task} />
           </ListItem>
         ))}
