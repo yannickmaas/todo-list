@@ -1,44 +1,40 @@
-import React from 'react';
-
+import React, { useState } from 'react';
+import {
+  Container, TextField, Button, List, ListItem, ListItemText, Typography,
+} from '@mui/material';
+// Set up initial global state
 const initialGlobalState = {
-  count: 0,
+  tasks: [],
 };
 
-// Create a Context for the (global) State
+// Create a Context for the global state
 const GlobalState = React.createContext();
 
+// Create a Global component
 class Global extends React.Component {
   constructor(props) {
     super(props);
-
-    // Set the initial (global) State
     this.state = {
       globals: initialGlobalState || {},
     };
   }
 
-  // Expose the setGlobals function to the Globals object
   componentDidMount() {
     GlobalState.set = this.setGlobalState;
   }
 
   setGlobalState = (data = {}) => {
     const { globals } = this.state;
-    // Loop over the data items by key, only updating those which have changed
     Object.keys(data).forEach((key) => {
       globals[key] = data[key];
-  });
-
-  // Update the state with the new State
-  this.setState(globals);
+    });
+    this.setState({ globals });
   };
 
   render() {
     const { globals } = this.state;
     const { Root } = this.props;
-
     return (
-    // Pass the current value of GlobalState, based on this components' State, down
       <GlobalState.Provider value={globals}>
         <Root />
       </GlobalState.Provider>
@@ -46,26 +42,57 @@ class Global extends React.Component {
   }
 }
 
-// Create a shorthand Hook for using the GlobalState
+// Create a hook to use the GlobalState
 const useGlobalState = () => React.useContext(GlobalState);
 
-// Create an example component which both renders and modifies the GlobalState
-function SomeComponent() {
-  const { count } = useGlobalState();
+// Main ToDo Function
+function TodoList() {
+  //Define states
+  const { tasks } = useGlobalState();
+  const [newTask, setNewTask] = useState('');
 
-  // Create a function which mutates GlobalState
-  function incrementCount() {
-    GlobalState.set({
-      count: count + 1,
-    });
+  //Add task function
+  function addTask() {
+    if (newTask) {
+      //Sets the new task state in the const
+      GlobalState.set({
+        tasks: [...tasks, newTask],
+      });
+      setNewTask('');
+    }
   }
-  return <div onClick={incrementCount}>{count}</div>;
+
+  return (
+    <Container>
+      <Typography variant="h4" gutterBottom>Todo List</Typography>
+      <TextField
+        label="New Task"
+        variant="outlined"
+        value={newTask}
+        //Stores the target value in the state of the new task
+        onChange={(e) => setNewTask(e.target.value)}
+        fullWidth
+        margin="normal"
+      />
+      <Button variant="contained" color="primary" onClick={addTask} fullWidth>
+        Add Task
+      </Button>
+      <List>
+        {tasks.map((task, index) => (
+          //Loops trough the tasks
+          <ListItem key={index}>
+            <ListItemText primary={task} />
+          </ListItem>
+        ))}
+      </List>
+    </Container>
+  );
 }
 
+// Create the main App component
 export default function App() {
-  // Note: within the Root function we can return any Component (not just SomeComponent, but also a Router for instance)
-  return <Global Root={() => <SomeComponent />} />;
+  return <Global Root={() => <TodoList />} />;
 }
 
-// Expose the GlobalState object to the window (allowing GlobalState.set({ count: 'new' }) from anywhere in the code (even your console))
+// Expose the GlobalState object to the window
 window.GlobalState = GlobalState;
