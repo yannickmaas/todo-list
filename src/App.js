@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import {
   Container, TextField, Button, List, ListItem, ListItemText, IconButton, Typography,
+  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle
 } from '@mui/material';
-import { Delete } from '@mui/icons-material';
+import { Delete, Edit } from '@mui/icons-material';
 // Set up initial global state
 const initialGlobalState = {
   tasks: [],
@@ -51,6 +52,8 @@ function TodoList() {
   //Define states
   const { tasks } = useGlobalState();
   const [newTask, setNewTask] = useState('');
+  const [editIndex, setEditIndex] = useState(null);
+  const [editTask, setEditTask] = useState('');
 
   //Add task function
   function addTask() {
@@ -63,10 +66,26 @@ function TodoList() {
     }
   }
 
+  function openEditDialog(index) {
+    //Gets triggered and gets the data from the task in the textfield
+    setEditIndex(index);
+    setEditTask(tasks[index]);
+  }
+
+  function handleEditTask() {
+    if (editTask) {
+      //For each task, the function checks if the current index i is equal to editIndex, if so it changes the task data
+      const updatedTasks = tasks.map((task, i) => (i === editIndex ? editTask : task));
+      GlobalState.set({ tasks: updatedTasks });
+      setEditIndex(null);
+      setEditTask('');
+    }
+  }
+
   function deleteTask(index) {
     //Updates the globalstate to filter the deleted tasks
-    const deleteTasks = tasks.filter((_, i) => i !== index);
-    GlobalState.set({ tasks: deleteTasks });
+    const updatedTasks = tasks.filter((_, i) => i !== index);
+    GlobalState.set({ tasks: updatedTasks });
   }
 
   return (
@@ -88,6 +107,9 @@ function TodoList() {
         {tasks.map((task, index) => (
           <ListItem key={index} secondaryAction={
             <>
+            <IconButton edge="end" onClick={() => openEditDialog(index)}>
+                <Edit />
+              </IconButton>
               <IconButton edge="end" onClick={() => deleteTask(index)}>
                 <Delete />
               </IconButton>
@@ -97,6 +119,31 @@ function TodoList() {
           </ListItem>
         ))}
       </List>
+      <Dialog open={editIndex !== null} onClose={() => setEditIndex(null)}>
+        <DialogTitle>Edit Task</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Modify the task and click 'Save' to update it.
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Task"
+            type="text"
+            fullWidth
+            value={editTask}
+            onChange={(e) => setEditTask(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditIndex(null)} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleEditTask} color="primary">
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
